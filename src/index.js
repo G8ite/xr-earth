@@ -24,17 +24,11 @@ var planetRadius = 60;
 var planetCenter = new THREE.Vector3();
 
 var backgroundColor   = 0xffffff;
-var lightColor        = 0xffffff;
-var ambientLightColor = 0xffffff;
-var planetColor       = 0xffffff;
+var planetColor       = 0xf5f5f5;
 var dotColor          = 0xc5c5c5;
 var mapColorKey       = 0x725da8;
 
 var planet       = new THREE.SphereGeometry(planetRadius, 50, 50);
-var light        = new THREE.DirectionalLight(new THREE.Color(lightColor));
-var ambientLight = new THREE.AmbientLight(new THREE.Color(ambientLightColor), 0.93);
-
-ambientLight.position.set(-20, -20, -20);
 
 const MapTextureUrl = "../res/image/map.png";
 
@@ -80,10 +74,10 @@ function OnPageLoaded(ev) {
   controls.enableDamping    = true;
   controls.enableZoom       = false;
 
-  const sphereObject = new THREE.Mesh(planet, new THREE.MeshPhysicalMaterial({ color: planetColor }))
+  const sphereMaterial = new THREE.MeshBasicMaterial({ color: planetColor });
+  const sphereObject = new THREE.Mesh(planet, sphereMaterial);
 
-  light.position.set(20, 20, 20);
-  scene.add(sphereObject, ambientLight);
+  scene.add(sphereObject);
 
   Loop();
   
@@ -101,12 +95,12 @@ function OnPageLoaded(ev) {
       const phi   = Math.acos(-1 + (2 * i) / dotCount);
       const theta = Math.sqrt(dotCount * Math.PI) * phi;
 
-      const position = new THREE.Vector3(0, 0, 0).setFromSphericalCoords(60, phi, theta);
+      const position = new THREE.Vector3().setFromSphericalCoords(60, phi, theta);
 
       const n = new THREE.Vector3(
-        0 - position.x,
-        0 - position.y,
-        0 - position.z,
+        planetCenter.x - position.x,
+        planetCenter.y - position.y,
+        planetCenter.z - position.z,
       ).normalize();
 
       const u = Math.atan2(n.x, n.z) / (2 * Math.PI) + 0.5;

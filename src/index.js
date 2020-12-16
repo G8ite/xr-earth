@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Lib from './lib.js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+// import { GPUComputationRenderer } from "three/examples/jsm/misc/GPUComputationRenderer";
 
 window.addEventListener("DOMContentLoaded", OnPageLoaded);
 
@@ -27,21 +28,29 @@ var lightColor        = 0xffffff;
 var ambientLightColor = 0xffffff;
 var planetColor       = 0xffffff;
 var dotColor          = 0xc5c5c5;
-var mapColorKey       =0x725da8;
+var mapColorKey       = 0x725da8;
 
-var planet  = new THREE.SphereGeometry(planetRadius, 50, 50);
-var light   = new THREE.DirectionalLight(new THREE.Color(lightColor));
+var planet       = new THREE.SphereGeometry(planetRadius, 50, 50);
+var light        = new THREE.DirectionalLight(new THREE.Color(lightColor));
 var ambientLight = new THREE.AmbientLight(new THREE.Color(ambientLightColor), 0.93);
 
 ambientLight.position.set(-20, -20, -20);
 
-const MapTextureUrl = "../res/image/map.png";//"https://images.ctfassets.net/fzn2n1nzq965/11064gUb2CgTJXKVwAt5J9/297a98a65d04d4fbb979072ce60466ab/map_fill-a78643e8.png";
+const MapTextureUrl = "../res/image/map.png";
 
 /** @type {THREE.InstancedMesh} */
 var instance;
 
 /** @type {OrbitControls} */
 var controls;
+
+/** @type {THREE.Vector3[]} */
+const positions = [];
+
+/**
+ * @type {{matrix: THREE.Matrix4, isPartner: boolean, position: THREE.Vector3}[]}
+ */
+const matrices = [];
 
 /**
  * Called when dom is loaded.
@@ -77,8 +86,7 @@ function OnPageLoaded(ev) {
   scene.add(sphereObject, ambientLight);
 
   Loop();
-
-  const matrices = [];
+  
   const dummy = new THREE.Object3D();
   const dotCount = 60000;
 
@@ -110,10 +118,10 @@ function OnPageLoaded(ev) {
       const index = (indY * imageData.width + indX) * 4;
 
       const pixel = [
-        imageData.data[index    ],
-        imageData.data[index + 1],
-        imageData.data[index + 2],
-        imageData.data[index + 3],
+        imageData.data[index    ], // r..
+        imageData.data[index + 1], // g..
+        imageData.data[index + 2], // b..
+        imageData.data[index + 3], // a..
       ];
 
       const alpha = imageData.data[index + 3];
@@ -126,10 +134,15 @@ function OnPageLoaded(ev) {
       dummy.position.set(position.x, position.y, position.z);
       dummy.updateMatrix();
 
-      const pixelColor = (pixel[0] << 16) | (pixel[1] << 8) | (pixel[2]);
+      const pixelColor = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
 
-      matrices.push({ matrix: dummy.matrix.clone(), isPartner: pixelColor == mapColorKey });
+      positions.push(position);
 
+      matrices.push({
+        matrix: dummy.matrix.clone(), 
+        isPartner: (pixelColor == mapColorKey),
+        position: position,
+      });
     }
 
     instance = new THREE.InstancedMesh(circleGeometry, circleMaterial, matrices.length);
@@ -144,25 +157,40 @@ function OnPageLoaded(ev) {
 }
 
 var lastTime = 0;
-var matrix = new THREE.Matrix4();
-// var counter = 0;
 
-function Loop(time) {
-    const delta = time - lastTime;
-    requestAnimationFrame(Loop);
+async function Processing(time) {
 
-    // if(instance) {
-    //   // instance.getMatrixAt((counter ++) % instance.count, matrix);
-    //   for(var i = 0; i < instance.count; i++) {
-    //     instance.getMatrixAt(i, matrix);
-    //     const r = matrix.extractRotation();
-    //     const d = new THREE.Vector3(0, 0, 1).applyMatrix4(r);
-    //     const t = new THREE.Vector3().applyMatrix4();
-    //     matrix.copyPosition();
-    //     // matrix.setPosition(matrix.po);
-    //   }
-    // }
+  if(instance) {
+    for(var i = 0; i < instance.count; i++) {
+      const c = (Math.cos((time + i * 0.2) / 1000) + 1) / 2;
 
-    controls.update();
-    renderer.render(scene, camera);
+      if(!matrices[i].isPartner) continue;
+
+      var matrix = new THREE.Matrix4();
+      instance.getMatrixAt(i, matrix);
+
+      var quat = new THREE.Quaternion().setFromRotationMatrix(matrix);
+      var dir = new THREE.Vector3(0, 0, 1).applyQuaternion(quat);
+
+      var pos = matrices[i].position;
+      
+      pos.x = dir.x * (planetRadius + c);
+      pos.y = dir.y * (planetRadius + c);
+      pos.z = dir.z * (planetRadius + c);
+
+      matrix.setPosition(pos)
+      instance.setMatrixAt(i, matrix);
+    }
+
+    instance.instanceMatrix.needsUpdate = true;
+  }
+}
+
+async function Loop(time) {
+  const delta = time - lastTime;
+
+  requestAnimationFrame(Loop);
+
+  controls.update();
+  renderer.render(scene, camera);
 }

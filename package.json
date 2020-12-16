@@ -1,0 +1,27 @@
+{
+  "name": "xr-earth",
+  "version": "1.0.0",
+  "description": "koukou",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/G8ite/xr-earth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/G8ite/xr-earth/issues"
+  },
+  "homepage": "https://github.com/G8ite/xr-earth#readme",
+  "devDependencies": {
+    "webpack": "^5.10.3",
+    "webpack-cli": "^4.2.0"
+  },
+  "dependencies": {
+    "three": "^0.123.0",
+    "three-orbit-controls": "^82.1.0"
+  }
+}

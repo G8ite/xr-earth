@@ -116,7 +116,7 @@ Lib.LoadImageData(WORLD_MAP_IMAGE_PATH, (imageData) => {
 
     // dotGeometry.lookAt(position);
     // dotGeometry.translate(position.x, position.y, position.z);
-    
+
     // const instance = new THREE.InstancedMesh(dotGeometry, dotMaterial);
     // const mesh = new THREE.Mesh( dotGeometry, dotMaterial );
 

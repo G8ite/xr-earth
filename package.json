@@ -1,16 +1,24 @@
 {
   "name": "xr-earth",
   "version": "1.0.0",
-  "description": "koukou",
+  "description": "A dynamic 3D Earth",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/G8ite/xr-earth.git"
   },
-  "author": "",
+  "contributors": [
+    {
+      "name": "G8ite",
+      "url": "https://github.com/G8ite"
+    },
+
+    {
+      "name": "5aitama",
+      "url": "https://github.com/5aitama"
+    }
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/G8ite/xr-earth/issues"
@@ -21,7 +29,6 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
-    "three": "^0.123.0",
-    "three-orbit-controls": "^82.1.0"
+    "three": "^0.123.0"
   }
 }

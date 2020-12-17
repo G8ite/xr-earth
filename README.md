@@ -44,4 +44,4 @@ And now you can start server with
 ```bash
 npm run serve
 ```
-Then you can open your favorite browser et go to `http://127.0.0.1:8080/` :D.
+Then you can open your favorite browser and go to `http://127.0.0.1:8080/` :D
